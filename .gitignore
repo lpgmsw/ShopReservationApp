@@ -1,0 +1,142 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+.npm
+
+# testing
+/coverage
+coverage/
+
+# next.js
+/.next/
+.next
+/out/
+
+# nuxt.js
+.nuxt
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# local env files
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.test
+.env.production.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Supabase
+.supabase/
+**/supabase/.branches
+**/supabase/.temp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*~
+
+# OS
+Thumbs.db
+
+# Logs
+logs
+*.log
+dev-debug.log
+
+# Test results
+/playwright-report/
+/test-results/
+/playwright/.cache/
+
+# Environment variables (CRITICAL - DO NOT COMMIT)
+# Note: anon key is safe to commit, but service_role key is NOT
+.env.local
+.env.*.local
+*.key
+*.pem
+credentials.json
+service-account.json
+
+# Build artifacts
+dist/
+.turbo/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Document files (may contain sensitive information)
+*.pdf
+*.csv
+*.xlsx
+*.xls
+*.doc
+*.docx
+
+# Session logs and temporary text files
+*.txt
+
+# Local configuration files
+*.local.json
+
+# AI specific
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+.claude/hooks.json
+.cursor/
+.roo/
+.taskmaster/
+.cline/
+.windsurf/
+.serena/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Task files
+tasks.json
+tasks/
+
+# Project documentation (may contain sensitive business logic)
+docs/
+GIT_WORKFLOW_MANUAL.md
+要件定義書.md
