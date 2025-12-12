@@ -3,12 +3,15 @@ import { z } from 'zod'
 export const signUpSchema = z.object({
   userName: z
     .string()
+    .trim()
     .min(3, 'ユーザー名は3文字以上で入力してください')
     .max(50, 'ユーザー名は50文字以内で入力してください')
     .regex(/^[a-zA-Z0-9_]+$/, 'ユーザー名は半角英数字とアンダースコアのみ使用できます'),
   email: z
     .string()
-    .email('正しいメールアドレス形式で入力してください'),
+    .trim()
+    .min(1, 'Email address is required')
+    .email('Email address is invalid'),
   password: z
     .string()
     .min(8, 'パスワードは8文字以上で入力してください')
