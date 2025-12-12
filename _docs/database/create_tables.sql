@@ -9,9 +9,8 @@ CREATE TABLE users (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role text NOT NULL CHECK (role IN ('user', 'shop_manager', 'system_admin')),
   user_name text NOT NULL,
-  email text UNIQUE,
   full_name text NOT NULL,
-  address text,
+  email text UNIQUE,
   phone_number text,
   created_at timestamptz DEFAULT now() NOT NULL,
   updated_at timestamptz DEFAULT now() NOT NULL
