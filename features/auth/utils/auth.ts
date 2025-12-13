@@ -39,6 +39,7 @@ export async function signUp(data: SignUpData): Promise<AuthResult> {
         id: authData.user.id,
         role: 'shop_manager',
         user_name: validated.userName,
+        email: validated.email,
         full_name: '', // 初期値は空文字（後で店舗設定画面で入力）
       })
 

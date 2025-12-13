@@ -138,5 +138,6 @@ tasks/
 
 # Project documentation (may contain sensitive business logic)
 docs/
+_docs/
 GIT_WORKFLOW_MANUAL.md
 要件定義書.md
