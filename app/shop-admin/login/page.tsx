@@ -7,9 +7,8 @@ export default function LoginPage() {
   const router = useRouter()
 
   const handleSuccess = () => {
-    // ログイン成功後は店舗設定画面へリダイレクト
-    // TODO: 実装後に適切なパスに変更
-    router.push('/dashboard')
+    // ログイン成功後は店舗予約一覧画面へリダイレクト
+    router.push('/shop-admin/reservations')
   }
 
   return (
