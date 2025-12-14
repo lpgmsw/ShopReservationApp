@@ -29,10 +29,10 @@ describe('registerShop', () => {
 
     const result = await registerShop('user-123', {
       shop_name: 'テスト店舗',
-      business_start_time: '09:00',
-      business_end_time: '18:00',
-      reservation_start_time: '10:00',
-      reservation_end_time: '17:00',
+      business_hours_start: '09:00',
+      business_hours_end: '18:00',
+      reservation_hours_start: '10:00',
+      reservation_hours_end: '17:00',
       business_days: ['月', '火', '水', '木', '金'],
       closed_days: ['土', '日'],
     })
@@ -43,10 +43,10 @@ describe('registerShop', () => {
     expect(mockInsert).toHaveBeenCalledWith({
       owner_id: 'user-123',
       shop_name: 'テスト店舗',
-      business_start_time: '09:00',
-      business_end_time: '18:00',
-      reservation_start_time: '10:00',
-      reservation_end_time: '17:00',
+      business_hours_start: '09:00',
+      business_hours_end: '18:00',
+      reservation_hours_start: '10:00',
+      reservation_hours_end: '17:00',
       business_days: ['月', '火', '水', '木', '金'],
       closed_days: ['土', '日'],
     })
@@ -68,10 +68,10 @@ describe('registerShop', () => {
 
     const result = await registerShop('user-123', {
       shop_name: 'テスト店舗',
-      business_start_time: '09:00',
-      business_end_time: '18:00',
-      reservation_start_time: '10:00',
-      reservation_end_time: '17:00',
+      business_hours_start: '09:00',
+      business_hours_end: '18:00',
+      reservation_hours_start: '10:00',
+      reservation_hours_end: '17:00',
       business_days: ['月', '火', '水', '木', '金'],
       closed_days: ['土', '日'],
     })
@@ -87,10 +87,10 @@ describe('registerShop', () => {
 
     const result = await registerShop('user-123', {
       shop_name: 'テスト店舗',
-      business_start_time: '09:00',
-      business_end_time: '18:00',
-      reservation_start_time: '10:00',
-      reservation_end_time: '17:00',
+      business_hours_start: '09:00',
+      business_hours_end: '18:00',
+      reservation_hours_start: '10:00',
+      reservation_hours_end: '17:00',
       business_days: ['月', '火', '水', '木', '金'],
       closed_days: ['土', '日'],
     })

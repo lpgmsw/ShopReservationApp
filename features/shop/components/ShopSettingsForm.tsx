@@ -18,10 +18,10 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
   const router = useRouter()
   const [formData, setFormData] = useState<ShopData>({
     shop_name: '',
-    business_start_time: '',
-    business_end_time: '',
-    reservation_start_time: '',
-    reservation_end_time: '',
+    business_hours_start: '',
+    business_hours_end: '',
+    reservation_hours_start: '',
+    reservation_hours_end: '',
     business_days: [],
     closed_days: [],
   })
@@ -109,48 +109,48 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
 
       {/* 営業開始時間 */}
       <div className="space-y-2">
-        <Label htmlFor="business_start_time">営業開始時間</Label>
+        <Label htmlFor="business_hours_start">営業開始時間</Label>
         <Input
-          id="business_start_time"
+          id="business_hours_start"
           type="time"
-          value={formData.business_start_time}
-          onChange={(e) => handleInputChange('business_start_time', e.target.value)}
+          value={formData.business_hours_start}
+          onChange={(e) => handleInputChange('business_hours_start', e.target.value)}
           aria-invalid={!!errors.business_time}
         />
       </div>
 
       {/* 営業終了時間 */}
       <div className="space-y-2">
-        <Label htmlFor="business_end_time">営業終了時間</Label>
+        <Label htmlFor="business_hours_end">営業終了時間</Label>
         <Input
-          id="business_end_time"
+          id="business_hours_end"
           type="time"
-          value={formData.business_end_time}
-          onChange={(e) => handleInputChange('business_end_time', e.target.value)}
+          value={formData.business_hours_end}
+          onChange={(e) => handleInputChange('business_hours_end', e.target.value)}
           aria-invalid={!!errors.business_time}
         />
       </div>
 
       {/* 予約受付開始時間 */}
       <div className="space-y-2">
-        <Label htmlFor="reservation_start_time">予約受付開始時間</Label>
+        <Label htmlFor="reservation_hours_start">予約受付開始時間</Label>
         <Input
-          id="reservation_start_time"
+          id="reservation_hours_start"
           type="time"
-          value={formData.reservation_start_time}
-          onChange={(e) => handleInputChange('reservation_start_time', e.target.value)}
+          value={formData.reservation_hours_start}
+          onChange={(e) => handleInputChange('reservation_hours_start', e.target.value)}
           aria-invalid={!!errors.reservation_time}
         />
       </div>
 
       {/* 予約受付終了時間 */}
       <div className="space-y-2">
-        <Label htmlFor="reservation_end_time">予約受付終了時間</Label>
+        <Label htmlFor="reservation_hours_end">予約受付終了時間</Label>
         <Input
-          id="reservation_end_time"
+          id="reservation_hours_end"
           type="time"
-          value={formData.reservation_end_time}
-          onChange={(e) => handleInputChange('reservation_end_time', e.target.value)}
+          value={formData.reservation_hours_end}
+          onChange={(e) => handleInputChange('reservation_hours_end', e.target.value)}
           aria-invalid={!!errors.reservation_time}
         />
       </div>

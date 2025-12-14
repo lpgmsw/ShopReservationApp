@@ -5,10 +5,10 @@ describe('validateShopData', () => {
     it('営業開始時間が営業終了時間より後の場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '18:00',
-        business_end_time: '09:00',
-        reservation_start_time: '10:00',
-        reservation_end_time: '17:00',
+        business_hours_start: '18:00',
+        business_hours_end: '09:00',
+        reservation_hours_start: '10:00',
+        reservation_hours_end: '17:00',
         business_days: ['月', '火', '水'],
         closed_days: ['土', '日'],
       })
@@ -20,10 +20,10 @@ describe('validateShopData', () => {
     it('営業開始時間と営業終了時間が同じ場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '09:00',
-        business_end_time: '09:00',
-        reservation_start_time: '09:00',
-        reservation_end_time: '09:00',
+        business_hours_start: '09:00',
+        business_hours_end: '09:00',
+        reservation_hours_start: '09:00',
+        reservation_hours_end: '09:00',
         business_days: ['月'],
         closed_days: ['日'],
       })
@@ -37,10 +37,10 @@ describe('validateShopData', () => {
     it('予約受付開始時間が予約受付終了時間より後の場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '09:00',
-        business_end_time: '18:00',
-        reservation_start_time: '17:00',
-        reservation_end_time: '10:00',
+        business_hours_start: '09:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '17:00',
+        reservation_hours_end: '10:00',
         business_days: ['月', '火', '水'],
         closed_days: ['土', '日'],
       })
@@ -52,10 +52,10 @@ describe('validateShopData', () => {
     it('予約受付時間が営業時間外の場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '10:00',
-        business_end_time: '18:00',
-        reservation_start_time: '09:00',
-        reservation_end_time: '19:00',
+        business_hours_start: '10:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '09:00',
+        reservation_hours_end: '19:00',
         business_days: ['月', '火', '水'],
         closed_days: ['土', '日'],
       })
@@ -69,10 +69,10 @@ describe('validateShopData', () => {
     it('営業日と定休日が重複している場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '09:00',
-        business_end_time: '18:00',
-        reservation_start_time: '10:00',
-        reservation_end_time: '17:00',
+        business_hours_start: '09:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '10:00',
+        reservation_hours_end: '17:00',
         business_days: ['月', '火', '水'],
         closed_days: ['水', '土', '日'],
       })
@@ -84,10 +84,10 @@ describe('validateShopData', () => {
     it('営業日が設定されていない場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '09:00',
-        business_end_time: '18:00',
-        reservation_start_time: '10:00',
-        reservation_end_time: '17:00',
+        business_hours_start: '09:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '10:00',
+        reservation_hours_end: '17:00',
         business_days: [],
         closed_days: ['土', '日'],
       })
@@ -101,10 +101,10 @@ describe('validateShopData', () => {
     it('店舗名が空の場合、エラーを返す', () => {
       const result = validateShopData({
         shop_name: '',
-        business_start_time: '09:00',
-        business_end_time: '18:00',
-        reservation_start_time: '10:00',
-        reservation_end_time: '17:00',
+        business_hours_start: '09:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '10:00',
+        reservation_hours_end: '17:00',
         business_days: ['月', '火', '水'],
         closed_days: ['土', '日'],
       })
@@ -118,10 +118,10 @@ describe('validateShopData', () => {
     it('すべてのバリデーションを通過する場合、isValidがtrueを返す', () => {
       const result = validateShopData({
         shop_name: 'テスト店舗',
-        business_start_time: '09:00',
-        business_end_time: '18:00',
-        reservation_start_time: '10:00',
-        reservation_end_time: '17:00',
+        business_hours_start: '09:00',
+        business_hours_end: '18:00',
+        reservation_hours_start: '10:00',
+        reservation_hours_end: '17:00',
         business_days: ['月', '火', '水', '木', '金'],
         closed_days: ['土', '日'],
       })

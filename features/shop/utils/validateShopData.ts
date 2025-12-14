@@ -1,9 +1,9 @@
 export interface ShopData {
   shop_name: string
-  business_start_time: string
-  business_end_time: string
-  reservation_start_time: string
-  reservation_end_time: string
+  business_hours_start: string
+  business_hours_end: string
+  reservation_hours_start: string
+  reservation_hours_end: string
   business_days: string[]
   closed_days: string[]
 }
@@ -32,16 +32,16 @@ export function validateShopData(data: ShopData): ValidationResult {
   }
 
   // 営業時間のバリデーション
-  if (data.business_start_time >= data.business_end_time) {
+  if (data.business_hours_start >= data.business_hours_end) {
     errors.business_time = '営業開始時間は営業終了時間より前である必要があります'
   }
 
   // 予約受付時間のバリデーション
-  if (data.reservation_start_time >= data.reservation_end_time) {
+  if (data.reservation_hours_start >= data.reservation_hours_end) {
     errors.reservation_time = '予約受付開始時間は予約受付終了時間より前である必要があります'
   } else if (
-    data.reservation_start_time < data.business_start_time ||
-    data.reservation_end_time > data.business_end_time
+    data.reservation_hours_start < data.business_hours_start ||
+    data.reservation_hours_end > data.business_hours_end
   ) {
     errors.reservation_time = '予約受付時間は営業時間内である必要があります'
   }
