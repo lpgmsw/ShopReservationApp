@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { checkShopSetup } from '@/features/shop/utils/checkShopSetup'
+import { fetchShopData } from '@/features/shop/utils/fetchShopData'
 import { Header } from '@/components/shop-admin/Header'
 import { Footer } from '@/components/shop-admin/Footer'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ function ReservationsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
+  const [shopName, setShopName] = useState<string>('')
   const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
@@ -48,6 +50,14 @@ function ReservationsPageContent() {
       const shopSetup = await checkShopSetup(user.id)
       setIsShopSetup(shopSetup)
 
+      // 店舗情報の取得（店舗設定済みの場合）
+      if (shopSetup) {
+        const shopResult = await fetchShopData(user.id)
+        if (shopResult.success && shopResult.data) {
+          setShopName(shopResult.data.shop_name)
+        }
+      }
+
       // 成功メッセージの表示チェック
       const successParam = searchParams.get('success')
       if (successParam === 'registered' || successParam === 'updated') {
@@ -76,7 +86,7 @@ function ReservationsPageContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header userName={userName} />
+      <Header userName={userName} shopName={shopName} />
 
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* 成功メッセージ */}
