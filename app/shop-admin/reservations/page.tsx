@@ -1,18 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { checkShopSetup } from '@/features/shop/utils/checkShopSetup'
+import { fetchShopData } from '@/features/shop/utils/fetchShopData'
 import { Header } from '@/components/shop-admin/Header'
 import { Footer } from '@/components/shop-admin/Footer'
 import { Button } from '@/components/ui/button'
 
-export default function ReservationsPage() {
+function ReservationsPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
+  const [shopName, setShopName] = useState<string>('')
   const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [successMessageType, setSuccessMessageType] = useState<'registered' | 'updated' | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -45,11 +50,31 @@ export default function ReservationsPage() {
       const shopSetup = await checkShopSetup(user.id)
       setIsShopSetup(shopSetup)
 
+      // 店舗情報の取得（店舗設定済みの場合）
+      if (shopSetup) {
+        const shopResult = await fetchShopData(user.id)
+        if (shopResult.success && shopResult.data) {
+          setShopName(shopResult.data.shop_name)
+        }
+      }
+
+      // 成功メッセージの表示チェック
+      const successParam = searchParams.get('success')
+      if (successParam === 'registered' || successParam === 'updated') {
+        setSuccessMessageType(successParam)
+        setShowSuccessMessage(true)
+        // 3秒後にメッセージを非表示
+        setTimeout(() => {
+          setShowSuccessMessage(false)
+          setSuccessMessageType(null)
+        }, 3000)
+      }
+
       setIsLoading(false)
     }
 
     init()
-  }, [router])
+  }, [router, searchParams])
 
   const handleGoToShopSettings = () => {
     router.push('/shop-admin/shop-settings')
@@ -61,9 +86,20 @@ export default function ReservationsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header userName={userName} />
+      <Header userName={userName} shopName={shopName} />
 
       <main className="flex-1 container mx-auto px-4 py-8">
+        {/* 成功メッセージ */}
+        {showSuccessMessage && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-blue-600 font-medium">
+              {successMessageType === 'updated'
+                ? '店舗情報を更新しました。'
+                : '店舗情報を登録しました。'}
+            </p>
+          </div>
+        )}
+
         {!isShopSetup ? (
           // 店舗未設定の場合
           <div className="flex flex-col items-center justify-center min-h-[400px]">
@@ -96,5 +132,13 @@ export default function ReservationsPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function ReservationsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReservationsPageContent />
+    </Suspense>
   )
 }
