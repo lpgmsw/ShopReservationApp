@@ -15,6 +15,7 @@ function ReservationsPageContent() {
   const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [successMessageType, setSuccessMessageType] = useState<'registered' | 'updated' | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -48,11 +49,14 @@ function ReservationsPageContent() {
       setIsShopSetup(shopSetup)
 
       // 成功メッセージの表示チェック
-      if (searchParams.get('success') === 'registered') {
+      const successParam = searchParams.get('success')
+      if (successParam === 'registered' || successParam === 'updated') {
+        setSuccessMessageType(successParam)
         setShowSuccessMessage(true)
         // 3秒後にメッセージを非表示
         setTimeout(() => {
           setShowSuccessMessage(false)
+          setSuccessMessageType(null)
         }, 3000)
       }
 
@@ -79,7 +83,9 @@ function ReservationsPageContent() {
         {showSuccessMessage && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
             <p className="text-blue-600 font-medium">
-              店舗情報を登録しました。
+              {successMessageType === 'updated'
+                ? '店舗情報を更新しました。'
+                : '店舗情報を登録しました。'}
             </p>
           </div>
         )}

@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { validateShopData, ShopData } from '../utils/validateShopData'
 import { registerShop } from '../utils/registerShop'
+import { updateShop } from '../utils/updateShop'
+import { fetchShopData } from '../utils/fetchShopData'
 
 interface ShopSettingsFormProps {
   userId: string
@@ -27,6 +29,33 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [shopId, setShopId] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // 初期データ取得
+  useEffect(() => {
+    const loadShopData = async () => {
+      const result = await fetchShopData(userId)
+
+      if (result.success && result.data) {
+        // 既存データがある場合はフォームにセット
+        setShopId(result.data.id)
+        setFormData({
+          shop_name: result.data.shop_name,
+          business_hours_start: result.data.business_hours_start,
+          business_hours_end: result.data.business_hours_end,
+          reservation_hours_start: result.data.reservation_hours_start,
+          reservation_hours_end: result.data.reservation_hours_end,
+          business_days: result.data.business_days,
+          closed_days: result.data.closed_days,
+        })
+      }
+
+      setIsLoading(false)
+    }
+
+    loadShopData()
+  }, [userId])
 
   const handleInputChange = (field: keyof ShopData, value: string) => {
     setFormData(prev => ({
@@ -62,15 +91,19 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
       return
     }
 
-    // 登録処理
-    const result = await registerShop(userId, formData)
+    // 登録/更新処理の分岐
+    const result = shopId
+      ? await updateShop(shopId, formData)
+      : await registerShop(userId, formData)
 
     if (result.success) {
       // 成功時は予約一覧画面へリダイレクト
-      router.push('/shop-admin/reservations?success=registered')
+      const successParam = shopId ? 'updated' : 'registered'
+      router.push(`/shop-admin/reservations?success=${successParam}`)
     } else {
       // 失敗時はエラー表示
-      setErrors({ submit: result.error || '登録に失敗しました' })
+      const errorMessage = shopId ? '更新に失敗しました' : '登録に失敗しました'
+      setErrors({ submit: result.error || errorMessage })
       setIsSubmitting(false)
     }
   }
@@ -78,6 +111,20 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
   const handleCancel = () => {
     router.push('/shop-admin/reservations')
   }
+
+  // ローディング中の表示
+  if (isLoading) {
+    return <div className="text-center py-8">読み込み中...</div>
+  }
+
+  const isEditMode = shopId !== null
+  const submitButtonText = isSubmitting
+    ? isEditMode
+      ? '更新中...'
+      : '登録中...'
+    : isEditMode
+    ? '更新'
+    : '登録'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -214,7 +261,7 @@ export function ShopSettingsForm({ userId }: ShopSettingsFormProps) {
           className="bg-blue-600 hover:bg-blue-700"
           disabled={isSubmitting}
         >
-          {isSubmitting ? '登録中...' : '登録'}
+          {submitButtonText}
         </Button>
       </div>
     </form>
