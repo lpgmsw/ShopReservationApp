@@ -1,0 +1,100 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { checkShopSetup } from '@/features/shop/utils/checkShopSetup'
+import { Header } from '@/components/shop-admin/Header'
+import { Footer } from '@/components/shop-admin/Footer'
+import { Button } from '@/components/ui/button'
+
+export default function ReservationsPage() {
+  const router = useRouter()
+  const [userName, setUserName] = useState<string>('')
+  const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const init = async () => {
+      const supabase = createClient()
+
+      // 認証チェック
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      if (authError || !user) {
+        router.push('/shop-admin/login')
+        return
+      }
+
+      // ユーザー名取得
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('user_name')
+        .eq('id', user.id)
+        .single()
+
+      if (userError || !userData) {
+        console.error('Failed to fetch user data:', userError)
+        router.push('/shop-admin/login')
+        return
+      }
+
+      setUserName(userData.user_name)
+
+      // 店舗設定チェック
+      const shopSetup = await checkShopSetup(user.id)
+      setIsShopSetup(shopSetup)
+
+      setIsLoading(false)
+    }
+
+    init()
+  }, [router])
+
+  const handleGoToShopSettings = () => {
+    router.push('/shop-admin/shop-settings')
+  }
+
+  if (isLoading) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header userName={userName} />
+
+      <main className="flex-1 container mx-auto px-4 py-8">
+        {!isShopSetup ? (
+          // 店舗未設定の場合
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                店舗設定がまだ完了していません
+              </h2>
+              <p className="text-gray-600 mb-8">
+                予約を受け付けるには、まず店舗情報を設定してください。
+              </p>
+              <Button onClick={handleGoToShopSettings}>
+                店舗設定へ
+              </Button>
+            </div>
+          </div>
+        ) : (
+          // 店舗設定済みの場合
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+              予約一覧
+            </h1>
+            <div className="bg-white rounded-lg shadow p-6">
+              <p className="text-gray-600 text-center py-8">
+                予約はまだありません
+              </p>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  )
+}
