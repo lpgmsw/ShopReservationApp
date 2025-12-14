@@ -1,18 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { checkShopSetup } from '@/features/shop/utils/checkShopSetup'
 import { Header } from '@/components/shop-admin/Header'
 import { Footer } from '@/components/shop-admin/Footer'
 import { Button } from '@/components/ui/button'
 
-export default function ReservationsPage() {
+function ReservationsPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
   const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -45,11 +47,20 @@ export default function ReservationsPage() {
       const shopSetup = await checkShopSetup(user.id)
       setIsShopSetup(shopSetup)
 
+      // 成功メッセージの表示チェック
+      if (searchParams.get('success') === 'registered') {
+        setShowSuccessMessage(true)
+        // 3秒後にメッセージを非表示
+        setTimeout(() => {
+          setShowSuccessMessage(false)
+        }, 3000)
+      }
+
       setIsLoading(false)
     }
 
     init()
-  }, [router])
+  }, [router, searchParams])
 
   const handleGoToShopSettings = () => {
     router.push('/shop-admin/shop-settings')
@@ -64,6 +75,15 @@ export default function ReservationsPage() {
       <Header userName={userName} />
 
       <main className="flex-1 container mx-auto px-4 py-8">
+        {/* 成功メッセージ */}
+        {showSuccessMessage && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-blue-600 font-medium">
+              店舗情報を登録しました。
+            </p>
+          </div>
+        )}
+
         {!isShopSetup ? (
           // 店舗未設定の場合
           <div className="flex flex-col items-center justify-center min-h-[400px]">
@@ -96,5 +116,13 @@ export default function ReservationsPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function ReservationsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReservationsPageContent />
+    </Suspense>
   )
 }
