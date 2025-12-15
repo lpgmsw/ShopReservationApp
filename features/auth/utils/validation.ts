@@ -10,8 +10,8 @@ export const signUpSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, 'Email address is required')
-    .email('Email address is invalid'),
+    .min(1, 'メールアドレスを入力してください')
+    .email('正しいメールアドレス形式で入力してください'),
   password: z
     .string()
     .min(8, 'パスワードは8文字以上で入力してください')
