@@ -9,6 +9,11 @@ export interface SignInData {
   password: string
 }
 
+export interface UserInfoUpdateData {
+  userName: string
+  email: string
+}
+
 export interface AuthResult {
   success: boolean
   error?: string

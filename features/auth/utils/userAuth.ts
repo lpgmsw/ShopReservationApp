@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
-import { SignUpData, SignInData, AuthResult } from '../types'
-import { signUpSchema, signInSchema } from './validation'
+import { SignUpData, SignInData, UserInfoUpdateData, AuthResult } from '../types'
+import { signUpSchema, signInSchema, userSettingsSchema } from './validation'
 import { AuthenticationError, ConflictError, ValidationError } from '@/lib/errors'
 
 /**
@@ -138,6 +138,71 @@ export async function signInUser(data: SignInData): Promise<AuthResult> {
     return {
       success: false,
       error: 'ログイン中にエラーが発生しました',
+    }
+  }
+}
+
+/**
+ * ユーザー情報の更新
+ * usersテーブルのuser_nameとemailを更新
+ */
+export async function updateUserInfo(
+  userId: string,
+  data: UserInfoUpdateData
+): Promise<AuthResult> {
+  try {
+    // バリデーション
+    const validated = userSettingsSchema.parse(data)
+
+    const supabase = createClient()
+
+    // usersテーブルを更新
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        user_name: validated.userName,
+        email: validated.email,
+      })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('User info update error:', updateError)
+      throw new AuthenticationError('ユーザー情報の更新に失敗しました')
+    }
+
+    // Supabase Authのメールアドレスも更新
+    const { error: authUpdateError } = await supabase.auth.updateUser({
+      email: validated.email,
+    })
+
+    if (authUpdateError) {
+      console.error('Auth email update error:', authUpdateError)
+      // Authのメールアドレス更新に失敗してもusersテーブルは更新済みなのでエラーを返さない
+      // 注: メールアドレス変更時は確認メールが送信される場合がある
+    }
+
+    return {
+      success: true,
+    }
+  } catch (error: any) {
+    // Zodのバリデーションエラー
+    if (error.name === 'ZodError') {
+      return {
+        success: false,
+        error: error.errors[0]?.message || 'バリデーションエラーが発生しました',
+      }
+    }
+    if (error instanceof ValidationError || error instanceof AuthenticationError) {
+      return {
+        success: false,
+        error: error.message,
+      }
+    }
+    // 予期しないエラー
+    console.error('Unexpected error during user info update:', error)
+    return {
+      success: false,
+      error: 'ユーザー情報の更新中にエラーが発生しました',
     }
   }
 }
