@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/user/Header'
 import { Footer } from '@/components/user/Footer'
@@ -12,6 +12,7 @@ import type { Shop } from '@/features/shop-search/types'
 
 export default function MyPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [searchResults, setSearchResults] = useState<Shop[]>([])
@@ -22,6 +23,7 @@ export default function MyPage() {
     date?: string
     time?: string
   }>({})
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -54,6 +56,18 @@ export default function MyPage() {
 
     init()
   }, [router])
+
+  // Success message handling
+  useEffect(() => {
+    if (searchParams.get('updated') === 'true') {
+      setShowSuccessMessage(true)
+      // Auto-dismiss after 3 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
 
   const handleSearch = (
     results: Shop[],
@@ -98,6 +112,15 @@ export default function MyPage() {
         <Sidebar />
 
         <main className="flex-1 container mx-auto px-4 py-8">
+          {showSuccessMessage && (
+            <div
+              className="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-md"
+              role="alert"
+            >
+              ユーザー情報を更新しました
+            </div>
+          )}
+
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
             店舗検索
           </h1>

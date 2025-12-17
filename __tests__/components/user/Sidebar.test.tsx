@@ -44,19 +44,33 @@ describe('User Sidebar Component', () => {
     expect(screen.getByText('予約履歴')).toBeInTheDocument()
   })
 
-  it('サイドバーが開いている時にユーザー設定ボタンが表示される', () => {
+  it('サイドバーが開いている時にユーザー設定リンクが表示される', () => {
     render(<Sidebar />)
 
     const toggleButton = screen.getByRole('button', { name: /メニューを開く|メニューを閉じる/ })
     fireEvent.click(toggleButton)
 
-    expect(screen.getByRole('button', { name: 'ユーザー設定' })).toBeInTheDocument()
+    expect(screen.getByText('ユーザー設定')).toBeInTheDocument()
+  })
+
+  it('ユーザー設定リンクが正しいURLを持つ', () => {
+    render(<Sidebar />)
+
+    const settingsLink = screen.getByRole('link', { name: /ユーザー設定/i })
+    expect(settingsLink).toHaveAttribute('href', '/user/settings')
+  })
+
+  it('予約履歴リンクが正しいURLを持つ', () => {
+    render(<Sidebar />)
+
+    const reservationsLink = screen.getByRole('link', { name: /予約履歴/i })
+    expect(reservationsLink).toHaveAttribute('href', '/user/reservations')
   })
 
   it('サイドバーが閉じている時はテキストが表示されない', () => {
     render(<Sidebar />)
 
     expect(screen.queryByText('予約履歴')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'ユーザー設定' })).not.toBeInTheDocument()
+    expect(screen.queryByText('ユーザー設定')).not.toBeInTheDocument()
   })
 })

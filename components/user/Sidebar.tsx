@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { ChevronRight, ChevronLeft, History, Settings } from 'lucide-react'
 
 export function Sidebar() {
@@ -48,16 +47,15 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* ユーザー設定ボタン（下部） */}
+      {/* ユーザー設定リンク（下部） */}
       <div className="p-4 border-t border-gray-200">
-        <Button
-          variant="outline"
-          className={`w-full ${isOpen ? 'justify-start' : 'justify-center px-2'}`}
-          disabled
+        <Link
+          href="/user/settings"
+          className="flex items-center gap-3 p-2 hover:bg-gray-200 rounded transition-colors border border-gray-300"
         >
           <Settings className="w-5 h-5 flex-shrink-0" />
-          {isOpen && <span className="ml-2">ユーザー設定</span>}
-        </Button>
+          {isOpen && <span className="text-sm">ユーザー設定</span>}
+        </Link>
       </div>
     </aside>
   )
