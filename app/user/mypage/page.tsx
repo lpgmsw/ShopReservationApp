@@ -24,6 +24,7 @@ export default function MyPage() {
     time?: string
   }>({})
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
+  const [successMessageType, setSuccessMessageType] = useState<'updated' | 'reserved' | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -61,9 +62,21 @@ export default function MyPage() {
   useEffect(() => {
     if (searchParams.get('updated') === 'true') {
       setShowSuccessMessage(true)
+      setSuccessMessageType('updated')
       // Auto-dismiss after 3 seconds
       const timer = setTimeout(() => {
         setShowSuccessMessage(false)
+        setSuccessMessageType(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+    if (searchParams.get('reserved') === 'true') {
+      setShowSuccessMessage(true)
+      setSuccessMessageType('reserved')
+      // Auto-dismiss after 3 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false)
+        setSuccessMessageType(null)
       }, 3000)
       return () => clearTimeout(timer)
     }
@@ -117,7 +130,9 @@ export default function MyPage() {
               className="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-md"
               role="alert"
             >
-              ユーザー情報を更新しました
+              {successMessageType === 'reserved'
+                ? '予約が完了しました'
+                : 'ユーザー情報を更新しました'}
             </div>
           )}
 
