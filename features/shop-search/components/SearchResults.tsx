@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import type { Shop } from '../types'
 
@@ -16,6 +17,7 @@ export function SearchResults({
   totalPages,
   onPageChange,
 }: SearchResultsProps) {
+  const router = useRouter()
   if (results.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -53,7 +55,7 @@ export function SearchResults({
               <Button
                 variant="default"
                 className="bg-blue-600 hover:bg-blue-700"
-                disabled
+                onClick={() => router.push(`/user/reservation/${shop.id}`)}
               >
                 予約
               </Button>
