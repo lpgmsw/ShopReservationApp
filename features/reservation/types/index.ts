@@ -39,3 +39,26 @@ export interface CreateReservationResult {
   success: boolean
   error?: string
 }
+
+/**
+ * Reservation with associated shop information
+ * Used for displaying reservation history with shop details
+ */
+export interface ReservationWithShop {
+  id: string
+  user_id: string
+  shop_id: string
+  reservation_date: string
+  reservation_time: string
+  reserver_name: string
+  comment: string
+  status: 'active' | 'cancelled' | 'completed'
+  created_at: string
+  updated_at: string
+  shops: {
+    id: string
+    shop_name: string
+    business_hours_start: string
+    business_hours_end: string
+  }
+}
