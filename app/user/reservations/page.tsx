@@ -34,7 +34,7 @@ export default function ReservationsPage() {
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('user_name')
-          .eq('user_id', user.id)
+          .eq('id', user.id)
           .single()
 
         if (userError || !userData) {
