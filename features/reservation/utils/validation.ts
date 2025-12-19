@@ -18,7 +18,14 @@ export const reservationSchema = z.object({
   reservationTime: z
     .string()
     .min(1, '予約時刻を入力してください')
-    .regex(/^\d{2}:\d{2}$/, '予約時刻の形式が正しくありません'),
+    .regex(/^\d{2}:\d{2}$/, '予約時刻の形式が正しくありません')
+    .refine(
+      (time) => {
+        const [, minutes] = time.split(':').map(Number)
+        return minutes % 30 === 0
+      },
+      { message: '予約時刻は30分単位で入力してください（例：14:00、14:30）' }
+    ),
 
   reserverName: z
     .string()

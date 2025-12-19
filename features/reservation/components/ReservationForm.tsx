@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { reservationSchema } from '@/features/reservation/utils/validation'
@@ -8,6 +8,24 @@ import { useCreateReservation } from '@/features/reservation/hooks/useCreateRese
 import { validateReservation } from '@/features/reservation/utils/validateReservation'
 import type { ReservationFormInput } from '@/features/reservation/types'
 import type { Shop } from '@/features/shop-search/types'
+
+/**
+ * Generate hour options from start to end hour
+ */
+function generateHourOptions(startHour: number, endHour: number): string[] {
+  const hours: string[] = []
+  for (let i = startHour; i <= endHour; i++) {
+    hours.push(i.toString().padStart(2, '0'))
+  }
+  return hours
+}
+
+/**
+ * Parse HH:MM:SS format to get hour
+ */
+function parseHour(timeString: string): number {
+  return parseInt(timeString.substring(0, 2), 10)
+}
 
 interface ReservationFormProps {
   userId: string
@@ -34,11 +52,14 @@ export function ReservationForm({
   onCancel,
 }: ReservationFormProps) {
   const [businessError, setBusinessError] = useState<string | null>(null)
+  const [selectedHour, setSelectedHour] = useState<string>('')
+  const [selectedMinute, setSelectedMinute] = useState<string>('00')
   const { create, isLoading, error: hookError } = useCreateReservation()
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<ReservationFormInput>({
     resolver: zodResolver(reservationSchema),
@@ -49,6 +70,20 @@ export function ReservationForm({
       comment: '',
     },
   })
+
+  // Generate hour options based on shop's reservation hours
+  const startHour = parseHour(shop.reservation_hours_start)
+  const endHour = parseHour(shop.reservation_hours_end)
+  const hourOptions = generateHourOptions(startHour, endHour)
+  const minuteOptions = ['00', '30']
+
+  // Update reservationTime when hour or minute changes
+  useEffect(() => {
+    if (selectedHour && selectedMinute) {
+      const timeValue = `${selectedHour}:${selectedMinute}`
+      setValue('reservationTime', timeValue, { shouldValidate: true })
+    }
+  }, [selectedHour, selectedMinute, setValue])
 
   const onSubmit = async (data: ReservationFormInput) => {
     // Clear previous business validation error
@@ -107,15 +142,38 @@ export function ReservationForm({
 
           {/* Reservation Time */}
           <div>
-            <label htmlFor="reservationTime" className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1">
               予約時刻
             </label>
-            <input
-              id="reservationTime"
-              type="time"
-              {...register('reservationTime')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="flex gap-2 items-center">
+              <select
+                value={selectedHour}
+                onChange={(e) => setSelectedHour(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="時"
+              >
+                <option value="">時</option>
+                {hourOptions.map((hour) => (
+                  <option key={hour} value={hour}>
+                    {hour}
+                  </option>
+                ))}
+              </select>
+              <span className="text-gray-600">:</span>
+              <select
+                value={selectedMinute}
+                onChange={(e) => setSelectedMinute(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="分"
+              >
+                {minuteOptions.map((minute) => (
+                  <option key={minute} value={minute}>
+                    {minute}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input type="hidden" {...register('reservationTime')} />
             {errors.reservationTime && (
               <p className="text-red-600 text-sm mt-1">
                 {errors.reservationTime.message}
