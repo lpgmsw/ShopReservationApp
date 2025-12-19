@@ -14,10 +14,11 @@ export default function ReservationsPage() {
   const [reservations, setReservations] = useState<ReservationWithShop[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
 
   useEffect(() => {
     async function loadReservations() {
+      const supabase = createClient()
+
       try {
         // Check authentication
         const {
@@ -91,7 +92,7 @@ export default function ReservationsPage() {
     }
 
     loadReservations()
-  }, [router, supabase])
+  }, [router])
 
   const getStatusBadge = (status: 'active' | 'cancelled' | 'completed') => {
     const badgeClasses = {
