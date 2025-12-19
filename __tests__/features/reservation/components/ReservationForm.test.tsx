@@ -58,14 +58,15 @@ describe('ReservationForm', () => {
     )
 
     expect(screen.getByLabelText('予約日')).toBeInTheDocument()
-    expect(screen.getByLabelText('予約時刻')).toBeInTheDocument()
+    expect(screen.getByLabelText('時')).toBeInTheDocument()
+    expect(screen.getByLabelText('分')).toBeInTheDocument()
     expect(screen.getByLabelText('予約者名')).toBeInTheDocument()
     expect(screen.getByLabelText('コメント（任意）')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '予約する' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument()
   })
 
-  it('should have step attribute of 1800 (30 minutes) for time input', () => {
+  it('should have minute select with only 00 and 30 options', () => {
     render(
       <ReservationForm
         userId="user-123"
@@ -75,8 +76,9 @@ describe('ReservationForm', () => {
       />
     )
 
-    const timeInput = screen.getByLabelText('予約時刻') as HTMLInputElement
-    expect(timeInput).toHaveAttribute('step', '1800')
+    const minuteSelect = screen.getByLabelText('分') as HTMLSelectElement
+    const options = Array.from(minuteSelect.options).map((opt) => opt.value)
+    expect(options).toEqual(['00', '30'])
   })
 
   it('should display shop reservation hours', () => {
@@ -106,7 +108,8 @@ describe('ReservationForm', () => {
     )
 
     await user.type(screen.getByLabelText('予約日'), '2025-12-25')
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.type(screen.getByLabelText('予約者名'), 'テストユーザー')
     await user.type(screen.getByLabelText('コメント（任意）'), 'よろしくお願いします')
 
@@ -143,7 +146,8 @@ describe('ReservationForm', () => {
       />
     )
 
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.type(screen.getByLabelText('予約者名'), 'テストユーザー')
     await user.click(screen.getByRole('button', { name: '予約する' }))
 
@@ -188,7 +192,8 @@ describe('ReservationForm', () => {
     )
 
     await user.type(screen.getByLabelText('予約日'), '2025-12-25')
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.click(screen.getByRole('button', { name: '予約する' }))
 
     await waitFor(() => {
@@ -210,7 +215,8 @@ describe('ReservationForm', () => {
     )
 
     await user.type(screen.getByLabelText('予約日'), '2025-12-25')
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.type(screen.getByLabelText('予約者名'), 'a'.repeat(51))
     await user.click(screen.getByRole('button', { name: '予約する' }))
 
@@ -235,12 +241,14 @@ describe('ReservationForm', () => {
     )
 
     const dateInput = screen.getByLabelText('予約日')
-    const timeInput = screen.getByLabelText('予約時刻')
+    const hourSelect = screen.getByLabelText('時')
+    const minuteSelect = screen.getByLabelText('分')
     const nameInput = screen.getByLabelText('予約者名')
     const commentInput = screen.getByLabelText('コメント（任意）')
 
     await user.type(dateInput, '2025-12-25')
-    await user.type(timeInput, '14:30')
+    await user.selectOptions(hourSelect, '14')
+    await user.selectOptions(minuteSelect, '30')
     await user.type(nameInput, 'テストユーザー')
 
     // Use paste for large text to avoid timeout
@@ -275,11 +283,13 @@ describe('ReservationForm', () => {
     )
 
     const dateInput = screen.getByLabelText('予約日')
-    const timeInput = screen.getByLabelText('予約時刻')
+    const hourSelect = screen.getByLabelText('時')
+    const minuteSelect = screen.getByLabelText('分')
     const nameInput = screen.getByLabelText('予約者名')
 
     await user.type(dateInput, '2025-12-25')
-    await user.type(timeInput, '21:00')
+    await user.selectOptions(hourSelect, '20')
+    await user.selectOptions(minuteSelect, '30')
     await user.type(nameInput, 'テストユーザー')
 
     await user.click(screen.getByRole('button', { name: '予約する' }))
@@ -310,11 +320,13 @@ describe('ReservationForm', () => {
     )
 
     const dateInput = screen.getByLabelText('予約日')
-    const timeInput = screen.getByLabelText('予約時刻')
+    const hourSelect = screen.getByLabelText('時')
+    const minuteSelect = screen.getByLabelText('分')
     const nameInput = screen.getByLabelText('予約者名')
 
     await user.type(dateInput, '2025-12-17')
-    await user.type(timeInput, '14:30')
+    await user.selectOptions(hourSelect, '14')
+    await user.selectOptions(minuteSelect, '30')
     await user.type(nameInput, 'テストユーザー')
 
     await user.click(screen.getByRole('button', { name: '予約する' }))
@@ -399,7 +411,8 @@ describe('ReservationForm', () => {
     )
 
     await user.type(screen.getByLabelText('予約日'), '2025-12-25')
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.type(screen.getByLabelText('予約者名'), 'テストユーザー')
     await user.click(screen.getByRole('button', { name: '予約する' }))
 
@@ -424,7 +437,8 @@ describe('ReservationForm', () => {
     )
 
     await user.type(screen.getByLabelText('予約日'), '2025-12-25')
-    await user.type(screen.getByLabelText('予約時刻'), '14:30')
+    await user.selectOptions(screen.getByLabelText('時'), '14')
+    await user.selectOptions(screen.getByLabelText('分'), '30')
     await user.type(screen.getByLabelText('予約者名'), 'テストユーザー')
     await user.click(screen.getByRole('button', { name: '予約する' }))
 
