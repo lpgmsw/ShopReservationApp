@@ -65,6 +65,20 @@ describe('ReservationForm', () => {
     expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument()
   })
 
+  it('should have step attribute of 1800 (30 minutes) for time input', () => {
+    render(
+      <ReservationForm
+        userId="user-123"
+        shop={mockShop}
+        onSuccess={mockOnSuccess}
+        onCancel={mockOnCancel}
+      />
+    )
+
+    const timeInput = screen.getByLabelText('予約時刻') as HTMLInputElement
+    expect(timeInput).toHaveAttribute('step', '1800')
+  })
+
   it('should display shop reservation hours', () => {
     render(
       <ReservationForm

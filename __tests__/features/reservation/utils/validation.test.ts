@@ -164,4 +164,58 @@ describe('reservationSchema', () => {
       expect(result.data.reserverName).toBe('テストユーザー')
     }
   })
+
+  it('should accept time in 30-minute intervals (00 minutes)', () => {
+    const validData = {
+      reservationDate: '2025-12-25',
+      reservationTime: '14:00',
+      reserverName: 'テストユーザー',
+      comment: '',
+    }
+
+    const result = reservationSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+  })
+
+  it('should accept time in 30-minute intervals (30 minutes)', () => {
+    const validData = {
+      reservationDate: '2025-12-25',
+      reservationTime: '14:30',
+      reserverName: 'テストユーザー',
+      comment: '',
+    }
+
+    const result = reservationSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+  })
+
+  it('should reject time not in 30-minute intervals (15 minutes)', () => {
+    const invalidData = {
+      reservationDate: '2025-12-25',
+      reservationTime: '14:15',
+      reserverName: 'テストユーザー',
+      comment: '',
+    }
+
+    const result = reservationSchema.safeParse(invalidData)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain('30分単位')
+    }
+  })
+
+  it('should reject time not in 30-minute intervals (45 minutes)', () => {
+    const invalidData = {
+      reservationDate: '2025-12-25',
+      reservationTime: '14:45',
+      reserverName: 'テストユーザー',
+      comment: '',
+    }
+
+    const result = reservationSchema.safeParse(invalidData)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain('30分単位')
+    }
+  })
 })
