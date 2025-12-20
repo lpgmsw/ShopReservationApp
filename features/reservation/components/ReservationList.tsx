@@ -5,6 +5,7 @@
  */
 'use client'
 
+import { useMemo } from 'react'
 import type { ReservationWithUserInfo } from '@/features/reservation/types'
 
 interface ReservationListProps {
@@ -32,16 +33,13 @@ function getStatusLabel(status: 'active' | 'cancelled' | 'completed'): string {
   }
 }
 
-/**
- * Check if reservation is for today
- */
-function isToday(reservationDate: string): boolean {
-  const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
-  return reservationDate === todayStr
-}
-
 export function ReservationList({ reservations }: ReservationListProps) {
+  // Calculate today's date once and memoize it
+  const todayStr = useMemo(() => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }, [])
+
   if (reservations.length === 0) {
     return null
   }
@@ -60,7 +58,7 @@ export function ReservationList({ reservations }: ReservationListProps) {
         </thead>
         <tbody>
           {reservations.map((reservation) => {
-            const rowClassName = isToday(reservation.reservation_date)
+            const rowClassName = reservation.reservation_date === todayStr
               ? 'bg-yellow-100'
               : ''
 
