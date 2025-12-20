@@ -5,19 +5,28 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { checkShopSetup } from '@/features/shop/utils/checkShopSetup'
 import { fetchShopData } from '@/features/shop/utils/fetchShopData'
+import { fetchShopReservations } from '@/features/reservation/utils/fetchShopReservations'
 import { Header } from '@/components/shop-admin/Header'
 import { Footer } from '@/components/shop-admin/Footer'
 import { Button } from '@/components/ui/button'
+import { ReservationList } from '@/features/reservation/components/ReservationList'
+import { Pagination } from '@/features/reservation/components/Pagination'
+import type { ReservationWithUserInfo } from '@/features/reservation/types'
 
 function ReservationsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
   const [shopName, setShopName] = useState<string>('')
+  const [shopId, setShopId] = useState<string>('')
   const [isShopSetup, setIsShopSetup] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [successMessageType, setSuccessMessageType] = useState<'registered' | 'updated' | null>(null)
+  const [reservations, setReservations] = useState<ReservationWithUserInfo[]>([])
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
+  const [total, setTotal] = useState<number>(0)
 
   useEffect(() => {
     const init = async () => {
@@ -55,6 +64,19 @@ function ReservationsPageContent() {
         const shopResult = await fetchShopData(user.id)
         if (shopResult.success && shopResult.data) {
           setShopName(shopResult.data.shop_name)
+          setShopId(shopResult.data.id)
+
+          // 予約一覧の取得（ページネーション付き）
+          const reservationsResult = await fetchShopReservations(supabase, {
+            shopId: shopResult.data.id,
+            page: currentPage,
+            limit: 20,
+          })
+          if (reservationsResult.success && reservationsResult.data) {
+            setReservations(reservationsResult.data)
+            setTotal(reservationsResult.total || 0)
+            setTotalPages(reservationsResult.totalPages || 1)
+          }
         }
       }
 
@@ -78,6 +100,28 @@ function ReservationsPageContent() {
 
   const handleGoToShopSettings = () => {
     router.push('/shop-admin/shop-settings')
+  }
+
+  const handlePageChange = async (page: number) => {
+    if (!shopId) return
+
+    setIsLoading(true)
+    const supabase = createClient()
+
+    const reservationsResult = await fetchShopReservations(supabase, {
+      shopId,
+      page,
+      limit: 20,
+    })
+
+    if (reservationsResult.success && reservationsResult.data) {
+      setReservations(reservationsResult.data)
+      setTotal(reservationsResult.total || 0)
+      setTotalPages(reservationsResult.totalPages || 1)
+      setCurrentPage(page)
+    }
+
+    setIsLoading(false)
   }
 
   if (isLoading) {
@@ -120,11 +164,27 @@ function ReservationsPageContent() {
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
               予約一覧
+              {total > 0 && (
+                <span className="text-lg text-gray-600 ml-4">
+                  （全{total}件）
+                </span>
+              )}
             </h1>
             <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-600 text-center py-8">
-                予約はまだありません
-              </p>
+              {reservations.length === 0 ? (
+                <p className="text-gray-600 text-center py-8">
+                  予約はまだありません
+                </p>
+              ) : (
+                <>
+                  <ReservationList reservations={reservations} />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
