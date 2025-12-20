@@ -62,3 +62,21 @@ export interface ReservationWithShop {
     business_hours_end: string
   }
 }
+
+/**
+ * Reservation with associated user information
+ * Used for shop admin to view reservations with user details
+ */
+export interface ReservationWithUserInfo {
+  id: string
+  user_id: string
+  shop_id: string
+  reservation_date: string
+  reservation_time: string
+  reserver_name: string
+  comment: string
+  status: 'active' | 'cancelled' | 'completed'
+  created_at: string
+  updated_at: string
+  user_name: string
+}
