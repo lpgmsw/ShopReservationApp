@@ -27,25 +27,6 @@ export interface FetchShopReservationsResult {
 }
 
 /**
- * Database response type for reservations with joined users
- */
-interface ReservationDbRow {
-  id: string
-  user_id: string
-  shop_id: string
-  reservation_date: string
-  reservation_time: string
-  reserver_name: string
-  comment: string
-  status: 'active' | 'cancelled' | 'completed'
-  created_at: string
-  updated_at: string
-  users: {
-    user_name: string
-  }
-}
-
-/**
  * Fetch reservations for a specific shop with user information (with pagination)
  * @param supabase - Supabase client instance
  * @param params - Parameters including shopId, page, and limit
@@ -88,65 +69,103 @@ export async function fetchShopReservations(
     const validatedLimit = limitValidation.data
     const offset = (validatedPage - 1) * validatedLimit
 
-    // Fetch total count for pagination
-    const { count, error: countError } = await supabase
-      .from('reservations')
-      .select('*', { count: 'exact', head: true })
-      .eq('shop_id', validatedShopId)
-
-    if (countError) {
-      console.error('Database error fetching count:', countError)
-      return {
-        success: false,
-        error: '予約一覧の取得に失敗しました',
-      }
-    }
-
-    const totalCount = count || 0
-    const totalPages = Math.ceil(totalCount / validatedLimit)
-
-    // Fetch reservations with user information joined
-    const { data, error } = await supabase
-      .from('reservations')
+    // Query from shops table to get reservations (this respects RLS policies)
+    // We need to start from shops table because RLS policy may be set on shops.owner_id
+    const { data: shopData, error: shopError } = await supabase
+      .from('shops')
       .select(`
         id,
-        user_id,
-        shop_id,
-        reservation_date,
-        reservation_time,
-        reserver_name,
-        comment,
-        status,
-        created_at,
-        updated_at,
-        users!inner(user_name)
+        reservations (
+          id,
+          user_id,
+          shop_id,
+          reservation_date,
+          reservation_time,
+          reserver_name,
+          comment,
+          status,
+          created_at,
+          updated_at
+        )
       `)
-      .eq('shop_id', validatedShopId)
-      .order('reservation_date', { ascending: true })
-      .order('reservation_time', { ascending: true })
-      .range(offset, offset + validatedLimit - 1)
+      .eq('id', validatedShopId)
+      .single()
 
-    if (error) {
-      console.error('Database error fetching reservations:', error)
+    if (shopError) {
+      console.error('Database error fetching shop:', shopError)
       return {
         success: false,
         error: '予約一覧の取得に失敗しました',
       }
     }
 
-    // Transform the nested users object to flat structure with proper typing
-    const reservations: ReservationWithUserInfo[] = (data as ReservationDbRow[] || []).map((item) => ({
-      id: item.id,
-      user_id: item.user_id,
-      shop_id: item.shop_id,
-      reservation_date: item.reservation_date,
-      reservation_time: item.reservation_time,
-      reserver_name: item.reserver_name,
-      comment: item.comment,
-      status: item.status,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-      user_name: item.users.user_name,
+    if (!shopData || !shopData.reservations) {
+      return {
+        success: true,
+        data: [],
+        total: 0,
+        totalPages: 0,
+        currentPage: validatedPage,
+      }
+    }
+
+    // Sort reservations by date and time
+    const sortedReservations = shopData.reservations.sort((a, b) => {
+      const dateCompare = a.reservation_date.localeCompare(b.reservation_date)
+      if (dateCompare !== 0) return dateCompare
+      return a.reservation_time.localeCompare(b.reservation_time)
+    })
+
+    const totalCount = sortedReservations.length
+    const totalPages = Math.ceil(totalCount / validatedLimit)
+
+    // Apply pagination
+    const paginatedReservations = sortedReservations.slice(offset, offset + validatedLimit)
+
+    // If no reservations in this page, return empty array
+    if (paginatedReservations.length === 0) {
+      return {
+        success: true,
+        data: [],
+        total: totalCount,
+        totalPages,
+        currentPage: validatedPage,
+      }
+    }
+
+    // Get unique user IDs
+    const userIds = [...new Set(paginatedReservations.map(r => r.user_id))]
+
+    // Fetch user names from public.users table
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id, user_name')
+      .in('id', userIds)
+
+    if (usersError) {
+      console.error('Database error fetching users:', usersError)
+      return {
+        success: false,
+        error: '予約一覧の取得に失敗しました',
+      }
+    }
+
+    // Create a map of user_id to user_name
+    const userMap = new Map(usersData?.map(u => [u.id, u.user_name]) || [])
+
+    // Combine reservations with user names
+    const reservations: ReservationWithUserInfo[] = paginatedReservations.map((reservation) => ({
+      id: reservation.id,
+      user_id: reservation.user_id,
+      shop_id: reservation.shop_id,
+      reservation_date: reservation.reservation_date,
+      reservation_time: reservation.reservation_time,
+      reserver_name: reservation.reserver_name,
+      comment: reservation.comment,
+      status: reservation.status,
+      created_at: reservation.created_at,
+      updated_at: reservation.updated_at,
+      user_name: userMap.get(reservation.user_id) || '',
     }))
 
     return {
