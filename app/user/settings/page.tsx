@@ -73,7 +73,7 @@ export default function UserSettingsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header userName={userSettings.userName} />
       <div className="flex-1 flex">
         <Sidebar />
         <main className="flex-1 p-8">
