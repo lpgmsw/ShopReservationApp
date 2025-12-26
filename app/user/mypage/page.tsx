@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/user/Header'
@@ -10,7 +10,7 @@ import { SearchForm } from '@/features/shop-search/components/SearchForm'
 import { SearchResults } from '@/features/shop-search/components/SearchResults'
 import type { Shop } from '@/features/shop-search/types'
 
-export default function MyPage() {
+function MyPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [userName, setUserName] = useState<string>('')
@@ -153,5 +153,13 @@ export default function MyPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function MyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">読み込み中...</div>}>
+      <MyPageContent />
+    </Suspense>
   )
 }
