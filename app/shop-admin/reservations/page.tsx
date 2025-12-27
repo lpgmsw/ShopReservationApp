@@ -43,16 +43,23 @@ function ReservationsPageContent() {
         return
       }
 
-      // Fetch user name
+      // Fetch user name and role
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('user_name')
+        .select('user_name, role')
         .eq('id', user.id)
         .single()
 
       if (userError || !userData) {
         console.error('Failed to fetch user data:', userError)
         router.push('/shop-admin/login')
+        return
+      }
+
+      // Check if user is shop_manager
+      if (userData.role !== 'shop_manager') {
+        console.warn('Access denied: User is not a shop manager')
+        router.push('/user/login')
         return
       }
 
