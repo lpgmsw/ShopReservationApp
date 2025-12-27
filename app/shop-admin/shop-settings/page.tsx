@@ -22,6 +22,26 @@ export default function ShopSettingsPage() {
         return
       }
 
+      // ロールチェック
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (userError || !userData) {
+        console.error('Failed to fetch user data:', userError)
+        router.push('/shop-admin/login')
+        return
+      }
+
+      // Check if user is shop_manager
+      if (userData.role !== 'shop_manager') {
+        console.warn('Access denied: User is not a shop manager')
+        router.push('/user/login')
+        return
+      }
+
       setUserId(user.id)
       setIsLoading(false)
     }
