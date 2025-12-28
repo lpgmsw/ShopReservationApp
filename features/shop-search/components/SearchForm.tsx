@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TIME_OPTIONS } from '@/features/shared/utils/timeOptions'
 import { searchShops } from '../utils/searchShops'
 import { validateSearchForm } from '../utils/validateSearchForm'
 import type { Shop } from '../types'
@@ -16,21 +17,6 @@ interface SearchFormProps {
     searchParams?: { shopName?: string; date?: string; time?: string }
   ) => void
 }
-
-// 30分単位の時間選択肢を生成
-const generateTimeOptions = () => {
-  const options = []
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-      options.push(timeStr)
-    }
-  }
-  return options
-}
-
-// コンポーネント外で定数化（パフォーマンス最適化）
-const TIME_OPTIONS = generateTimeOptions()
 
 export function SearchForm({ onSearch }: SearchFormProps) {
   const [shopName, setShopName] = useState('')

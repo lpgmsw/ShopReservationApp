@@ -1,16 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import type { SearchParams, SearchResult, Shop } from '../types'
-
-// 曜日マッピング（日曜日=0, 月曜日=1, ...）
-const WEEKDAY_MAP: Record<number, string> = {
-  0: '日',
-  1: '月',
-  2: '火',
-  3: '水',
-  4: '木',
-  5: '金',
-  6: '土',
-}
+import { WEEKDAY_MAP } from '@/features/shared/constants/weekdays'
 
 export async function searchShops(params: SearchParams): Promise<SearchResult> {
   try {
