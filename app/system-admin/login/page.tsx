@@ -7,8 +7,8 @@ export default function SystemAdminLoginPage() {
   const router = useRouter()
 
   const handleSuccess = () => {
-    // ログイン成功後はダッシュボードへリダイレクト（将来実装予定）
-    router.push('/dashboard')
+    // ログイン成功後はシステム管理者マイページへリダイレクト
+    router.push('/system-admin/shops')
   }
 
   const handleSwitchToSignUp = () => {
