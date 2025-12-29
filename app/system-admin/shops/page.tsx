@@ -16,6 +16,7 @@ function SystemAdminShopsContent() {
   const [searchResults, setSearchResults] = useState<Shop[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [lastSearchParams, setLastSearchParams] = useState<{
     shopName?: string
     businessHoursStart?: string
@@ -58,6 +59,16 @@ function SystemAdminShopsContent() {
 
       setUserName(userData.user_name)
       setIsLoading(false)
+
+      // 成功メッセージの表示チェック
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('success') === 'updated') {
+          setSuccessMessage('店舗情報を更新しました。')
+          // URLからクエリパラメータを削除
+          window.history.replaceState({}, '', '/system-admin/shops')
+        }
+      }
     }
 
     init()
@@ -138,6 +149,13 @@ function SystemAdminShopsContent() {
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           店舗一覧
         </h1>
+
+        {/* 成功メッセージ */}
+        {successMessage && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-blue-600 font-medium">{successMessage}</p>
+          </div>
+        )}
 
         <AdminSearchForm onSearch={handleSearch} />
 

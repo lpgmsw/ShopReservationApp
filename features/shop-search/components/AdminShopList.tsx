@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { DeleteShopModal } from './DeleteShopModal'
 import { deleteShop } from '@/features/shop/utils/deleteShop'
@@ -21,6 +22,7 @@ export function AdminShopList({
   onPageChange,
   onShopDeleted,
 }: AdminShopListProps) {
+  const router = useRouter()
   const [shopToDelete, setShopToDelete] = useState<Shop | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -95,6 +97,12 @@ export function AdminShopList({
               </div>
 
               <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(`/system-admin/shops/${shop.id}/edit`)}
+                >
+                  編集
+                </Button>
                 <Button
                   variant="outline"
                   className="border-red-300 text-red-600 hover:bg-red-50"
