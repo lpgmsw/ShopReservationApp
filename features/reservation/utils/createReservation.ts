@@ -26,6 +26,48 @@ export async function createReservation(
     // Convert time from HH:MM to HH:MM:SS for PostgreSQL time type
     const reservationTimeWithSeconds = `${data.reservationTime}:00`
 
+    // 1. Get shop's max_reservations_per_slot
+    const { data: shopData, error: shopError } = await supabase
+      .from('shops')
+      .select('max_reservations_per_slot')
+      .eq('id', shopId)
+      .single()
+
+    if (shopError || !shopData) {
+      console.error('Failed to fetch shop data:', shopError)
+      return {
+        success: false,
+        error: '店舗情報の取得に失敗しました',
+      }
+    }
+
+    const maxReservations = shopData.max_reservations_per_slot
+
+    // 2. Count existing reservations for the same date and time
+    const { count, error: countError } = await supabase
+      .from('reservations')
+      .select('*', { count: 'exact', head: true })
+      .eq('shop_id', shopId)
+      .eq('reservation_date', data.reservationDate)
+      .eq('reservation_time', reservationTimeWithSeconds)
+      .eq('status', 'active')
+
+    if (countError) {
+      console.error('Failed to count reservations:', countError)
+      return {
+        success: false,
+        error: '予約数の確認に失敗しました',
+      }
+    }
+
+    // 3. Check if slot is full
+    if (count !== null && count >= maxReservations) {
+      return {
+        success: false,
+        error: '満員のため、ご指定頂いた枠では予約ができません。別の枠を指定してください。',
+      }
+    }
+
     // Insert reservation into database
     const { data: reservationData, error } = await supabase
       .from('reservations')

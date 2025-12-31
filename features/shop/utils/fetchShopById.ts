@@ -58,6 +58,7 @@ export async function fetchShopById(
         reservation_hours_end: data.reservation_hours_end,
         business_days: data.business_days,
         closed_days: data.closed_days,
+        max_reservations_per_slot: data.max_reservations_per_slot || 1,
       },
     }
   } catch (error) {
