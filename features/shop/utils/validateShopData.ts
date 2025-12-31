@@ -6,6 +6,7 @@ export interface ShopData {
   reservation_hours_end: string
   business_days: string[]
   closed_days: string[]
+  max_reservations_per_slot: number
 }
 
 export interface ValidationResult {
@@ -15,6 +16,7 @@ export interface ValidationResult {
     business_time?: string
     reservation_time?: string
     days?: string
+    max_reservations_per_slot?: string
   }
 }
 
@@ -55,6 +57,15 @@ export function validateShopData(data: ShopData): ValidationResult {
     errors.days = '営業日と定休日が重複しています'
   } else if (data.business_days.length === 0) {
     errors.days = '少なくとも1日は営業日を設定してください'
+  }
+
+  // 予約受付可能人数のバリデーション
+  if (!data.max_reservations_per_slot) {
+    errors.max_reservations_per_slot = '予約受付可能人数を入力してください'
+  } else if (!Number.isInteger(data.max_reservations_per_slot)) {
+    errors.max_reservations_per_slot = '予約受付可能人数は整数で入力してください'
+  } else if (data.max_reservations_per_slot < 1) {
+    errors.max_reservations_per_slot = '予約受付可能人数は1以上である必要があります'
   }
 
   return {

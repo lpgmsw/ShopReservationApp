@@ -79,4 +79,6 @@ export interface ReservationWithUserInfo {
   created_at: string
   updated_at: string
   user_name: string
+  slot_count?: number // Number of reservations for this time slot
+  slot_max?: number // Maximum reservations allowed for this time slot
 }

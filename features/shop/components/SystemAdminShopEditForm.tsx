@@ -26,6 +26,7 @@ export function SystemAdminShopEditForm({ shopId }: SystemAdminShopEditFormProps
     reservation_hours_end: '',
     business_days: [],
     closed_days: [],
+    max_reservations_per_slot: 1,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -46,6 +47,7 @@ export function SystemAdminShopEditForm({ shopId }: SystemAdminShopEditFormProps
           reservation_hours_end: result.data.reservation_hours_end,
           business_days: result.data.business_days,
           closed_days: result.data.closed_days,
+          max_reservations_per_slot: result.data.max_reservations_per_slot,
         })
         setIsLoading(false)
       } else {
@@ -60,7 +62,7 @@ export function SystemAdminShopEditForm({ shopId }: SystemAdminShopEditFormProps
   const handleInputChange = (field: keyof ShopData, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: field === 'max_reservations_per_slot' ? parseInt(value, 10) || 1 : value,
     }))
   }
 
@@ -250,6 +252,23 @@ export function SystemAdminShopEditForm({ shopId }: SystemAdminShopEditFormProps
               </button>
             ))}
           </div>
+        </div>
+
+        {/* 予約受付可能人数 */}
+        <div className="space-y-2">
+          <Label htmlFor="max_reservations_per_slot">予約受付可能人数（1枠あたり）</Label>
+          <Input
+            id="max_reservations_per_slot"
+            type="number"
+            min="1"
+            value={formData.max_reservations_per_slot}
+            onChange={(e) => handleInputChange('max_reservations_per_slot', e.target.value)}
+            placeholder="1"
+            aria-invalid={!!errors.max_reservations_per_slot}
+          />
+          <p className="text-sm text-gray-600">
+            1つの時間枠で受け付けられる予約人数を設定してください
+          </p>
         </div>
 
         {/* ボタン */}

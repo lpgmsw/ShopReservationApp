@@ -9,6 +9,7 @@ export interface Shop {
   reservation_hours_end: string
   business_days: string[]
   closed_days: string[]
+  max_reservations_per_slot: number
   created_at: string
   updated_at: string
 }

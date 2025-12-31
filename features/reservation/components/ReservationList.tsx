@@ -53,6 +53,7 @@ export function ReservationList({ reservations }: ReservationListProps) {
             <th className="border border-gray-300 px-4 py-2 text-left">ユーザー名</th>
             <th className="border border-gray-300 px-4 py-2 text-left">予約者名</th>
             <th className="border border-gray-300 px-4 py-2 text-left">コメント</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">予約枠</th>
             <th className="border border-gray-300 px-4 py-2 text-left">ステータス</th>
           </tr>
         </thead>
@@ -75,6 +76,11 @@ export function ReservationList({ reservations }: ReservationListProps) {
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   {reservation.comment || '-'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  {reservation.slot_count !== undefined && reservation.slot_max !== undefined
+                    ? `${reservation.slot_count} / ${reservation.slot_max}`
+                    : '-'}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   {getStatusLabel(reservation.status)}

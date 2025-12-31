@@ -75,6 +75,7 @@ export async function fetchShopReservations(
       .from('shops')
       .select(`
         id,
+        max_reservations_per_slot,
         reservations (
           id,
           user_id,
@@ -153,20 +154,38 @@ export async function fetchShopReservations(
     // Create a map of user_id to user_name
     const userMap = new Map(usersData?.map(u => [u.id, u.user_name]) || [])
 
-    // Combine reservations with user names
-    const reservations: ReservationWithUserInfo[] = paginatedReservations.map((reservation) => ({
-      id: reservation.id,
-      user_id: reservation.user_id,
-      shop_id: reservation.shop_id,
-      reservation_date: reservation.reservation_date,
-      reservation_time: reservation.reservation_time,
-      reserver_name: reservation.reserver_name,
-      comment: reservation.comment,
-      status: reservation.status,
-      created_at: reservation.created_at,
-      updated_at: reservation.updated_at,
-      user_name: userMap.get(reservation.user_id) || '',
-    }))
+    // Create a map to count reservations per time slot
+    // Key: "date_time", Value: count of active reservations
+    const slotCountMap = new Map<string, number>()
+    sortedReservations
+      .filter(r => r.status === 'active')
+      .forEach((reservation) => {
+        const slotKey = `${reservation.reservation_date}_${reservation.reservation_time}`
+        slotCountMap.set(slotKey, (slotCountMap.get(slotKey) || 0) + 1)
+      })
+
+    // Combine reservations with user names and slot count info
+    const maxReservationsPerSlot = shopData.max_reservations_per_slot || 1
+    const reservations: ReservationWithUserInfo[] = paginatedReservations.map((reservation) => {
+      const slotKey = `${reservation.reservation_date}_${reservation.reservation_time}`
+      const slotCount = reservation.status === 'active' ? slotCountMap.get(slotKey) || 0 : 0
+
+      return {
+        id: reservation.id,
+        user_id: reservation.user_id,
+        shop_id: reservation.shop_id,
+        reservation_date: reservation.reservation_date,
+        reservation_time: reservation.reservation_time,
+        reserver_name: reservation.reserver_name,
+        comment: reservation.comment,
+        status: reservation.status,
+        created_at: reservation.created_at,
+        updated_at: reservation.updated_at,
+        user_name: userMap.get(reservation.user_id) || '',
+        slot_count: slotCount,
+        slot_max: maxReservationsPerSlot,
+      }
+    })
 
     return {
       success: true,

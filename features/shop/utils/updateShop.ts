@@ -29,6 +29,7 @@ export async function updateShop(
         reservation_hours_end: shopData.reservation_hours_end,
         business_days: shopData.business_days,
         closed_days: shopData.closed_days,
+        max_reservations_per_slot: shopData.max_reservations_per_slot,
       })
       .eq('id', shopId)
 
